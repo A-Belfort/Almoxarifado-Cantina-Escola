@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 import psycopg2
 from psycopg2 import errors
 from db import get_connection
@@ -58,7 +58,9 @@ def inicio():
     return jsonify({
         "servico": "Almoxarifado da Cantina-Escola",
         "status": "ativo",
+        "painel_web": "/painel",
         "rotas": [
+            "GET /painel",
             "GET /health",
             "POST /produtos",
             "GET /produtos",
@@ -67,6 +69,11 @@ def inicio():
             "POST /produtos/<id>/movimentacoes",
         ],
     })
+
+
+@app.route("/painel", methods=["GET"])
+def painel():
+    return render_template("index.html")
 
 
 @app.route("/health", methods=["GET"])
