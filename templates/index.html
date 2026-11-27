@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almoxarifado da Cantina-Escola</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+    header {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 18px 22px;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.88rem;
+      color: #d1d5db;
+    }
+    .health-box {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+    .alerta {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-weight: 500;
+      display: none;
+    }
+    .alerta.sucesso {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .alerta.erro {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .grid-forms {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      margin-bottom: 18px;
+    }
+    .grid-forms .card {
+      margin-bottom: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.08rem;
+      color: #1e3a5f;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.92rem;
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    button {
+      margin-top: 14px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      background: #1e3a5f;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button:hover { background: #162c49; }
+    button.secundario {
+      background: #e2e8f0;
+      color: #1e293b;
+      margin-top: 0;
+    }
+    button.secundario.ativo {
+      background: #1e3a5f;
+      color: #fff;
+    }
+    button.alerta-btn.ativo {
+      background: #b91c1c;
+      color: #fff;
+    }
+    button.pequeno {
+      margin-top: 0;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .filtros {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge.ok { background: #dcfce7; color: #166534; }
+    .badge.baixo { background: #fee2e2; color: #991b1b; }
+    .badge.entrada { background: #dbeafe; color: #1e40af; }
+    .badge.saida { background: #fef3c7; color: #92400e; }
+    .vazio {
+      text-align: center;
+      color: #64748b;
+      padding: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Almoxarifado da Cantina-Escola</h1>
+        <p>Controle de estoque, entradas, saídas e alerta de reposição</p>
+      </div>
+      <div class="health-box" id="healthBox">Verificando conexão com o banco...</div>
+    </header>
+
+    <div id="mensagem" class="alerta"></div>
+
+    <div class="grid-forms">
+      <section class="card">
+        <h2>1. Cadastrar Produto</h2>
+        <form id="formProduto">
+          <label for="nome">Nome do produto</label>
+          <input type="text" id="nome" placeholder="Ex.: Arroz Branco Tipo 1" required maxlength="120" />
+
+          <div class="row-2">
+            <div>
+              <label for="unidade">Unidade</label>
+              <select id="unidade" required>
+                <option value="kg">kg (Quilograma)</option>
+                <option value="L">L (Litro)</option>
+                <option value="un">un (Unidade)</option>
+              </select>
+            </div>
+            <div>
+              <label for="estoqueMinimo">Estoque mínimo</label>
+              <input type="number" id="estoqueMinimo" value="5" min="0" step="any" required />
+            </div>
+          </div>
+
+          <button type="submit">Salvar Produto (Saldo inicial: 0)</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>2. Registrar Movimentação</h2>
+        <form id="formMovimentacao">
+          <label for="produtoSelect">Produto</label>
+          <select id="produtoSelect" required>
+            <option value="">Carregando produtos...</option>
+          </select>
+
+          <div class="row-2">
+            <div>
+              <label for="tipoMov">Tipo</label>
+              <select id="tipoMov" required>
+                <option value="entrada">Entrada (Compra)</option>
+                <option value="saida">Saída (Uso cozinha)</option>
+              </select>
+            </div>
+            <div>
+              <label for="quantidade">Quantidade</label>
+              <input type="number" id="quantidade" placeholder="Ex.: 10" step="any" required />
+            </div>
+          </div>
+
+          <label for="motivo">Motivo / Responsável</label>
+          <input type="text" id="motivo" placeholder="Ex.: Compra fornecedor ou Preparo almoço" required maxlength="255" />
+
+          <button type="submit">Registrar Movimentação</button>
+        </form>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin: 0;">3. Estoque Atual</h2>
+        <div class="filtros">
+          <button type="button" id="btnTodos" class="secundario ativo" onclick="carregarProdutos(false)">
+            Todos os Produtos
+          </button>
+          <button type="button" id="btnAbaixo" class="secundario alerta-btn" onclick="carregarProdutos(true)">
+            Abaixo do Estoque Mínimo
+          </button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produto</th>
+            <th>Unidade</th>
+            <th>Estoque Mínimo</th>
+            <th>Saldo Atual</th>
+            <th>Situação</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaProdutos">
+          <tr><td colspan="7" class="vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="cardHistorico" style="display: none;">
+      <div class="toolbar">
+        <h2 id="tituloHistorico" style="margin: 0;">4. Histórico de Movimentações</h2>
+        <button type="button" class="secundario pequeno" onclick="fecharHistorico()">Fechar</button>
+      </div>
+      <p id="resumoHistorico" style="margin-top: 0; font-size: 0.9rem; color: #475569;"></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data / Hora</th>
+            <th>Tipo</th>
+            <th>Quantidade</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaHistorico"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    let filtroAbaixoMinimo = false;
+    let produtoHistoricoAberto = null;
+
+    function mostrarMensagem(texto, tipo) {
+      const box = document.getElementById("mensagem");
+      box.textContent = texto;
+      box.className = "alerta " + tipo;
+    }
+
+    function formatarData(iso) {
+      if (!iso) return "-";
+      return new Date(iso).toLocaleString("pt-BR");
+    }
+
+    async function verificarHealth() {
+      const box = document.getElementById("healthBox");
+      try {
+        const res = await fetch("/health");
+        const data = await res.json();
+        if (res.ok) {
+          box.innerHTML = `Status: <strong>${data.status.toUpperCase()}</strong> (${data.banco})<br>Iniciado em: ${formatarData(data.iniciado_em)}`;
+        } else {
+          box.innerHTML = `Status: <strong>INDISPONÍVEL</strong> (${data.banco})`;
+        }
+      } catch (e) {
+        box.innerHTML = "Status: <strong>ERRO DE REDE</strong>";
+      }
+    }
+
+    async function carregarProdutos(apenasAbaixo = filtroAbaixoMinimo) {
+      filtroAbaixoMinimo = apenasAbaixo;
+      document.getElementById("btnTodos").classList.toggle("ativo", !apenasAbaixo);
+      document.getElementById("btnAbaixo").classList.toggle("ativo", apenasAbaixo);
+
+      const endpoint = apenasAbaixo ? "/produtos/abaixo-minimo" : "/produtos";
+      const tbody = document.getElementById("tabelaProdutos");
+
+      try {
+        const res = await fetch(endpoint);
+        const lista = await res.json();
+
+        if (!res.ok) {
+          mostrarMensagem(lista.erro || "Erro ao carregar produtos.", "erro");
+          return;
+        }
+
+        // Atualiza sempre o select de movimentações com a lista completa
+        if (!apenasAbaixo) {
+          atualizarSelectProdutos(lista);
+        } else {
+          const resTodos = await fetch("/produtos");
+          if (resTodos.ok) atualizarSelectProdutos(await resTodos.json());
+        }
+
+        if (lista.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="vazio">${
+            apenasAbaixo ? "Nenhum produto abaixo do estoque mínimo." : "Nenhum produto cadastrado."
+          }</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = lista.map((p) => {
+          const abaixo = Number(p.saldo) < Number(p.estoque_minimo);
+          const badge = abaixo
+            ? `<span class="badge baixo">Abaixo do mínimo</span>`
+            : `<span class="badge ok">Normal</span>`;
+          return `
+            <tr>
+              <td>#${p.id}</td>
+              <td><strong>${p.nome}</strong></td>
+              <td>${p.unidade}</td>
+              <td>${p.estoque_minimo}</td>
+              <td><strong>${p.saldo} ${p.unidade}</strong></td>
+              <td>${badge}</td>
+              <td>
+                <button type="button" class="secundario pequeno" onclick="verHistorico(${p.id})">
+                  Ver Histórico
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch (e) {
+        mostrarMensagem("Falha de comunicação com o servidor.", "erro");
+      }
+    }
+
+    function atualizarSelectProdutos(produtos) {
+      const select = document.getElementById("produtoSelect");
+      const selecionadoAntes = select.value;
+
+      if (produtos.length === 0) {
+        select.innerHTML = `<option value="">Cadastre um produto primeiro</option>`;
+        return;
+      }
+
+      select.innerHTML = produtos.map((p) =>
+        `<option value="${p.id}">#${p.id} - ${p.nome} (Saldo: ${p.saldo} ${p.unidade})</option>`
+      ).join("");
+
+      if (selecionadoAntes && produtos.some((p) => String(p.id) === selecionadoAntes)) {
+        select.value = selecionadoAntes;
+      }
+    }
+
+    async function verHistorico(produtoId) {
+      produtoHistoricoAberto = produtoId;
+      try {
+        const res = await fetch(`/produtos/${produtoId}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarMensagem(data.erro || "Erro ao consultar histórico.", "erro");
+          return;
+        }
+
+        document.getElementById("cardHistorico").style.display = "block";
+        document.getElementById("tituloHistorico").textContent = `4. Histórico: ${data.nome} (#${data.id})`;
+        document.getElementById("resumoHistorico").textContent =
+          `Saldo atual: ${data.saldo} ${data.unidade} | Estoque mínimo: ${data.estoque_minimo} ${data.unidade} | Total de movimentações: ${data.movimentacoes.length}`;
+
+        const tbody = document.getElementById("tabelaHistorico");
+        if (data.movimentacoes.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="vazio">Nenhuma movimentação registrada para este produto.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.movimentacoes.map((m) => `
+          <tr>
+            <td>#${m.id}</td>
+            <td>${formatarData(m.criada_em)}</td>
+            <td><span class="badge ${m.tipo}">${m.tipo.toUpperCase()}</span></td>
+            <td><strong>${m.quantidade} ${data.unidade}</strong></td>
+            <td>${m.motivo}</td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        mostrarMensagem("Erro ao carregar histórico do produto.", "erro");
+      }
+    }
+
+    function fecharHistorico() {
+      produtoHistoricoAberto = null;
+      document.getElementById("cardHistorico").style.display = "none";
+    }
+
+    document.getElementById("formProduto").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        nome: document.getElementById("nome").value,
+        unidade: document.getElementById("unidade").value,
+        estoque_minimo: document.getElementById("estoqueMinimo").value
+      };
+
+      const res = await fetch("/produtos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        mostrarMensagem(`Produto "${data.nome}" cadastrado com sucesso (ID #${data.id}).`, "sucesso");
+        document.getElementById("nome").value = "";
+        await carregarProdutos();
+      } else {
+        mostrarMensagem(`Erro (${res.status}): ${data.erro}`, "erro");
+      }
+    });
+
+    document.getElementById("formMovimentacao").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const produtoId = document.getElementById("produtoSelect").value;
+      if (!produtoId) {
+        mostrarMensagem("Selecione um produto válido.", "erro");
+        return;
+      }
+
+      const payload = {
+        tipo: document.getElementById("tipoMov").value,
+        quantidade: document.getElementById("quantidade").value,
+        motivo: document.getElementById("motivo").value
+      };
+
+      const res = await fetch(`/produtos/${produtoId}/movimentacoes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        mostrarMensagem(
+          `Movimentação de ${data.tipo} (${data.quantidade}) registrada! Novo saldo: ${data.saldo_atual}.`,
+          "sucesso"
+        );
+        document.getElementById("quantidade").value = "";
+        document.getElementById("motivo").value = "";
+        await carregarProdutos();
+        if (String(produtoHistoricoAberto) === String(produtoId)) {
+          await verHistorico(produtoId);
+        }
+      } else {
+        mostrarMensagem(`Recusado (${res.status}): ${data.erro}`, "erro");
+      }
+    });
+
+    verificarHealth();
+    carregarProdutos(false);
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-26T20:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_cantina",
+      "parentId": null,
+      "name": "Almoxarifado Cantina-Escola",
+      "description": "Desafio 02 - Nível A",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_cantina",
+      "parentId": "wrk_cantina",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:5000"
+      },
+      "_type": "environment"
+    },
+    {
+      "_id": "req_01",
+      "parentId": "wrk_cantina",
+      "name": "1. Health Check",
+      "url": "{{ _.base_url }}/health",
+      "method": "GET",
+      "body": {},
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_02",
+      "parentId": "wrk_cantina",
+      "name": "2. RF1 - Cadastrar Produto",
+      "url": "{{ _.base_url }}/produtos",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Arroz Integral\",\n  \"unidade\": \"kg\",\n  \"estoque_minimo\": 5\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_03",
+      "parentId": "wrk_cantina",
+      "name": "3. CA5 - Produto Duplicado (409)",
+      "url": "{{ _.base_url }}/produtos",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Arroz Integral\",\n  \"unidade\": \"kg\",\n  \"estoque_minimo\": 5\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_04",
+      "parentId": "wrk_cantina",
+      "name": "4. CA1 - Entrada de 10 (201)",
+      "url": "{{ _.base_url }}/produtos/1/movimentacoes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"entrada\",\n  \"quantidade\": 10,\n  \"motivo\": \"Compra semanal do fornecedor\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_05",
+      "parentId": "wrk_cantina",
+      "name": "5. CA1 - Saída de 4 (201)",
+      "url": "{{ _.base_url }}/produtos/1/movimentacoes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"saida\",\n  \"quantidade\": 4,\n  \"motivo\": \"Preparo do almoço escolar\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_06",
+      "parentId": "wrk_cantina",
+      "name": "6. CA2 - Saída Maior que Saldo (409)",
+      "url": "{{ _.base_url }}/produtos/1/movimentacoes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"saida\",\n  \"quantidade\": 7,\n  \"motivo\": \"Tentativa de retirada acima do saldo\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_07",
+      "parentId": "wrk_cantina",
+      "name": "7. CA3 - Quantidade Zero ou Negativa (400)",
+      "url": "{{ _.base_url }}/produtos/1/movimentacoes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"entrada\",\n  \"quantidade\": 0,\n  \"motivo\": \"Teste inválido\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_08",
+      "parentId": "wrk_cantina",
+      "name": "8. RF4 - Consultar Produto e Histórico",
+      "url": "{{ _.base_url }}/produtos/1",
+      "method": "GET",
+      "body": {},
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_09",
+      "parentId": "wrk_cantina",
+      "name": "9. CA4 / RF5 - Listar Abaixo do Mínimo",
+      "url": "{{ _.base_url }}/produtos/abaixo-minimo",
+      "method": "GET",
+      "body": {},
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_10",
+      "parentId": "wrk_cantina",
+      "name": "10. Listar Todos os Produtos",
+      "url": "{{ _.base_url }}/produtos",
+      "method": "GET",
+      "body": {},
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_11",
+      "parentId": "wrk_cantina",
+      "name": "11. Ponto de Controle 2 - GXX-PALAVRA",
+      "url": "{{ _.base_url }}/produtos",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"G01-NIMBUS\",\n  \"unidade\": \"un\",\n  \"estoque_minimo\": 1\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "_type": "request"
+    }
+  ]
+}
